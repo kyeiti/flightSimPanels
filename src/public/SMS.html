@@ -1,12 +1,12 @@
 <html>
 <head>
-<title>HUD</title>
+<title>SMS</title>
 <script src='javascripts/vector.js'></script>
 <script src='javascripts/math.js'></script>
 <script src='javascripts/config.js'></script>
 <script src='javascripts/number_format.js'></script>
 <script src='javascripts/canvas.js'></script>
-<script src='javascripts/HUD.js'></script>
+<script src='javascripts/SMS.js'></script>
 <script src='javascripts/app.js'></script>
                 <script src="javascripts/lib/jquery.min.js"></script>
                 <script src="/socket.io/socket.io.js"></script>
@@ -23,21 +23,16 @@ body {
 </style>
 </head>
 <body>
-<canvas id='HUD' height="425" width="500">
+<canvas id='sms' height="400" width="400">
 </canvas>
 <script>
-HUD = new HUD_Canvas('HUD', 'lightgreen', 'black');
-HUD.updateOffsetY(offset_y);
-HUD.updateOffsetX(offset_x);
-resize_hud();
+SMS = new SMS_Canvas('sms', 'lightgreen', 'black');
+SMS.getRoot().style.position = "absolute";
+SMS.getRoot().style.top = sms_offset_y + "px";
+SMS.getRoot().style.left = sms_offset_x + "px";
+SMS.setHeight(sms_size);
+SMS.setWidth(sms_size);
 
-function resize_hud() {
-    HUD.setHeight(window.innerHeight);
-    HUD.setWidth(window.innerWidth);
-    HUD.setScale(hud_scale);
-    HUD.draw();
-}
-window.addEventListener("resize", resize_hud);
 </script>
 </body>
 </html>

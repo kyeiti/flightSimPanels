@@ -8,7 +8,7 @@ var express = require("express"),
 	MeasureFactory = require('./services/MeasureFactory'),
 	notFound = require('./lib/middleware/notFound'),
 	app = express();
-
+var config = require("./public/javascripts/config.js");
 var server;
 var measures = {};
 var socket;
@@ -20,6 +20,12 @@ app.configure(function() {
 	app.use(express.logger("dev")); //short,tiny,dev
 	app.use(express.bodyParser());
 	app.use(express['static'](path.join(__dirname, 'public')));
+    if(config.attitude_three){
+        app.use("/gauges", express['static'](path.join(__dirname, 'public/gauges_3d')));
+    }
+    else {
+        app.use("/gauges", express['static'](path.join(__dirname, 'public/gauges_2d')));
+    }
 });
 
 app.get('/heartbeat',  function(req, res) {
@@ -62,5 +68,6 @@ function onSIOConnect (socket) {
 }
 
 function onMessage ( message ) {
-	io.sockets.emit("data:measures", {data:MeasureFactory.decodeMessage(message)});
+	console.log(message.toString());
+	io.sockets.emit("data:measures", message.toString());
 }

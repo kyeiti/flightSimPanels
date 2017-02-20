@@ -1,0 +1,75 @@
+<html>
+<head>
+<title>Gauges</title>
+<script src="/javascripts/lib/three.js"></script>
+<script src="/javascripts/lib/three-canvas.js"></script>
+<script src='/javascripts/vector.js'></script>
+<script src='/javascripts/math.js'></script>
+<script src='/javascripts/config.js'></script>
+<script src='/javascripts/number_format.js'></script>
+<script src='/javascripts/canvas.js'></script>
+<script src='/javascripts/gauge_altitude.js'></script>
+<script src='/javascripts/gauge_attitude.js'></script>
+<script src='/javascripts/gauge_aoa.js'></script>
+<script src='/javascripts/gauge_speed.js'></script>
+<script src='/javascripts/gauge_vs.js'></script>
+<script src='/javascripts/app.js'></script>
+                <script src="/javascripts/lib/jquery.min.js"></script>
+                <script src="/socket.io/socket.io.js"></script>
+                <script src="/javascripts/application.js"></script>
+
+
+<style>
+body {
+    margin: 0;
+    padding:0;
+	text-align:center;
+    background-color:black;
+};
+</style>
+</head>
+<body>
+<canvas id='speed' height="200" width="200"></canvas>
+<canvas id='altitude' height="200" width="200"></canvas>
+<canvas id='attitude' height="200" width="200"></canvas>
+<canvas id='aoa' height="200" width="70"></canvas>
+<canvas id='vs' height="200" width="70">
+</canvas>
+<script>
+font_size = 25;
+
+Altitude = new Altitude_Canvas('altitude', 'white', 'black');
+Altitude.getRoot().style.position = "absolute";
+Altitude.getRoot().style.top = altitude_offset_y + "px";
+Altitude.getRoot().style.left = altitude_offset_x + "px";
+Altitude.setHeight(altitude_size);
+Altitude.setWidth(altitude_size);
+
+Speed = new Speed_Canvas('speed', 'white', 'black');
+Speed.getRoot().style.position = "absolute";
+Speed.getRoot().style.top = speed_offset_y + "px";
+Speed.getRoot().style.left = speed_offset_x + "px";
+Speed.setHeight(speed_size);
+Speed.setWidth(speed_size);
+
+Attitude = new Attitude_Canvas('attitude', 'white', 'black');
+Attitude.getRoot().style.position = "absolute";
+Attitude.getRoot().style.top = attitude_offset_y + "px";
+Attitude.getRoot().style.left = attitude_offset_x + "px";
+Attitude.setHeight(attitude_size);
+Attitude.setWidth(attitude_size);
+
+AOA = new AOA_Canvas('aoa', 'white', 'black', instrument_border_color);
+AOA.getRoot().style.position = "absolute";
+AOA.getRoot().style.top = aoa_offset_y + "px";
+AOA.getRoot().style.left = aoa_offset_x + "px";
+AOA.scale(aoa_size);
+
+VS = new Vertical_Speed_Canvas('vs', 'white', 'black', instrument_border_color);
+VS.getRoot().style.position = "absolute";
+VS.getRoot().style.top = vs_offset_y + "px";
+VS.getRoot().style.left = vs_offset_x + "px";
+VS.scale(vs_size);
+</script>
+</body>
+</html>
