@@ -68,6 +68,7 @@ function onSIOConnect (socket) {
 }
 
 function onMessage ( message ) {
-	console.log(message.toString());
-	io.sockets.emit("data:measures", message.toString());
+	var dataref = message.slice(9).toString();
+	dataref = dataref.substring(0, dataref.indexOf("\u0000"))
+	io.sockets.emit("data:measures", {value: message.readFloatLE(5), dataRef: dataref});
 }

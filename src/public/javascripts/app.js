@@ -91,7 +91,7 @@ function parse(data, config){
       parsed_data["stations"][i] = {
         type: parseElement(data, config["station1_type"] + i, "int"),
         status: parseElement(data, config["station1_status"] + i, "int")
-      }
+      };
     }
     catch(er) {
       parsed_data.errors.push("Some data for station" + (i+1));
@@ -134,101 +134,97 @@ function parseElement(src, src_i, type){
   }
 }
 
-function injectData(HUD, data, config){
-  var parsed = parse(data, config);
-  if(parsed.on_ground){
-    parsed.hpath = parsed.compass;
-    parsed.vpath = on_ground_vpath;
-    parsed.pitch = on_ground_pitch;
-    parsed.mag_var = 0;
+function injectData(HUD, xplaneData){
+  if(xplaneData.get("on_ground") > 0) {
+    xplaneData.set("hpath", xplaneData.get("compass"));
+    xplaneData.set("vpath", on_ground_vpath);
+    xplaneData.set("pitch", on_ground_pitch);
+    xplaneData.set("mag_var", 0);
   }
-  HUD.updateSpeed(parsed.speed);
-  HUD.updateAltitude(parsed.altitude);
-  HUD.updateRoll(parsed.roll);
-  HUD.updatePitch(parsed.vpath);
-  HUD.updateCompass(parsed.compass);
-  HUD.updateCompassTarget(parsed.compass_target);
-  HUD.updateG(parsed.g);
-  HUD.updateMach(parsed.mach);
-  HUD.updateRadAlt(parsed.rad_alt);
-  HUD.updateArmed(parsed.is_armed_srm + parsed.is_armed_gun);
-  HUD.updateWeapon([parsed.is_armed_gun, parsed.is_armed_srm], parsed.gun_ammo);
-  HUD.updateGear(parsed.aoa_bracket);
-  HUD.setGearOut(parsed.is_gear_out);
-  HUD.setAirBrakeOn(parsed.air_brake_on);
-  HUD.updateFPVPosition(new Vector(HUD.getYaw(parsed.hpath + parsed.mag_var), parsed.pitch - parsed.vpath));
-  var targeted = parsed.is_armed_srm + parsed.is_armed_gun;
-  if(parsed.target_index == 0){
+  HUD.updateSpeed(xplaneData.get("speed"));
+  HUD.updateAltitude(xplaneData.get("altitude"));
+  HUD.updateRoll(xplaneData.get("roll"));
+  HUD.updatePitch(xplaneData.get("vpath"));
+  HUD.updateCompass(xplaneData.get("compass"));
+  HUD.updateCompassTarget(xplaneData.get("compass_target"));
+  HUD.updateG(xplaneData.get("g"));
+  HUD.updateMach(xplaneData.get("mach"));
+  HUD.updateRadAlt(xplaneData.get("rad_alt"));
+  HUD.updateArmed(xplaneData.get("is_armed_srm") + xplaneData.get("is_armed_gun"));
+  HUD.updateWeapon([xplaneData.get("is_armed_gun"), xplaneData.get("is_armed_srm")], xplaneData.get("gun_ammo"));
+  HUD.updateGear(xplaneData.get("aoa_bracket"));
+  HUD.setGearOut(xplaneData.get("is_gear_out"));
+  HUD.setAirBrakeOn(xplaneData.get("air_brake_on"));
+  HUD.updateFPVPosition(new Vector(HUD.getYaw(xplaneData.get("hpath") + xplaneData.get("mag_var")), xplaneData.get("pitch") - xplaneData.get("vpath")));
+  var targeted = xplaneData.get("is_armed_srm") + xplaneData.get("is_armed_gun");
+  if(xplaneData.get("target_index") === 0){
     targeted = false;
   }
-  HUD.updateTarget(planes[parsed.target_index], planes[0], targeted, parsed.compass, parsed.pitch, parsed.roll);
-  HUD.updateRotationRates(parsed.pitch_rate, parsed.yaw_rate, parsed.roll_rate);
+//  HUD.updateTarget(planes[xplaneData.get("target_index")], planes[0], targeted, xplaneData.get("compass"), xplaneData.get("pitch"), xplaneData.get("roll"));
+  HUD.updateRotationRates(xplaneData.get("pitch_rate"), xplaneData.get("yaw_rate"), xplaneData.get("roll_rate"));
   HUD.resetErrors();
-  if(parsed.errors.length > 0){
-    HUD.addError("Missing Data: " + parsed.errors.toString());
-  }
+  // if(xplaneData.get("errors").length > 0){
+  //   HUD.addError("Missing Data: " + xplaneData.get("errors").toString());
+  // }
   HUD.draw();
 }
 
-function injectRadarData(Canvas, data, config){
-  var parsed = parse(data, config);
-  Canvas.updatePlanes(parsed.planes.slice(1));
-  Canvas.updateOwnPlane(parsed.planes[0]);
-  Canvas.updateCompass(parsed.compass);
-  Canvas.updateRoll(parsed.roll);
+function injectRadarData(Canvas, xplaneData){
+  Canvas.updatePlanes(xplaneData.get("planes").slice(1));
+  Canvas.updateOwnPlane(xplaneData.get("planes")[0]);
+  Canvas.updateCompass(xplaneData.get("compass"));
+  Canvas.updateRoll(xplaneData.get("roll"));
   Canvas.resetErrors();
-  if(parsed.errors.length > 0){
-    Canvas.addError("Missing Data: " + parsed.errors.toString());
+  if(xplaneData.get("errors").length > 0){
+    Canvas.addError("Missing Data: " + xplaneData.get("errors").toString());
   }
   Canvas.draw();
 }
 
-function injectSMSData(Canvas, data, config){
-  var parsed = parse(data, config);
-  for(var i = 0; i < parsed.stations.length; i++){
-    Canvas.updateStation(i+1, parsed.stations[i].type, parsed.stations[i].status);
+function injectSMSData(Canvas, xplaneData){
+  for(var i = 0; i < xplaneData.get("stations").length; i++){
+    Canvas.updateStation(i+1, xplaneData.get("stations")[i].type, xplaneData.get("stations")[i].status);
   }
-  if(parsed.is_armed_srm){
+  if(xplaneData.get("is_armed_srm")){
     Canvas.selectStationsByType(8);
   }
   else {
     Canvas.selectStationsByType(-1);
   }
-  Canvas.updateGunAmmo(parsed.gun_ammo);
-  Canvas.updateOilTmp(parsed.oil_tmp);
-  Canvas.updateRPM(parsed.rpm);
-  Canvas.updateFTIT(parsed.ftit);
-  Canvas.updateFF(parsed.ff)
-  Canvas.updateFOB(parsed.fob * 2.2)
+  Canvas.updateGunAmmo(xplaneData.get("gun_ammo"));
+  Canvas.updateOilTmp(xplaneData.get("oil_tmp"));
+  Canvas.updateRPM(xplaneData.get("rpm"));
+  Canvas.updateFTIT(xplaneData.get("ftit"));
+  Canvas.updateFF(xplaneData.get("ff"))
+  Canvas.updateFOB(xplaneData.get("fob") * 2.2)
   Canvas.resetErrors();
-  if(parsed.errors.length > 0){
-    Canvas.addError("Missing Data: " + parsed.errors.toString());
+  if(xplaneData.get("errors").length > 0){
+    Canvas.addError("Missing Data: " + xplaneData.get("errors").toString());
   }
   Canvas.draw();
 }
 
-function injectGaugeData(data, config){
-  var parsed = parse(data, config);
-  AOA.updateAOA(parsed.aoa_bracket);
+function injectGaugeData(xplaneData){
+  AOA.updateAOA(xplaneData.get("aoa_bracket"));
   AOA.draw();
-  VS.updateVS(parsed.vertical_speed * 60 * meter_in_feet);
+  VS.updateVS(xplaneData.get("vertical_speed") * 60 * meter_in_feet);
   VS.draw();
-  Altitude.updateAltitude(parsed.altitude);
+  Altitude.updateAltitude(xplaneData.get("altitude"));
   Altitude.resetErrors();
-  if(parsed.errors.length > 0){
-    Altitude.addError("Missing Data: " + parsed.errors.toString());
-  }
+  // if(xplaneData.get("errors").length > 0){
+  //   Altitude.addError("Missing Data: " + xplaneData.get("errors").toString());
+  // }
   Altitude.draw();
-  Speed.updateSpeed(parsed.speed);
-  Speed.updateMach(parsed.mach);
+  Speed.updateSpeed(xplaneData.get("speed"));
+  Speed.updateMach(xplaneData.get("mach"));
   Speed.resetErrors();
-  if(parsed.errors.length > 0){
-    Speed.addError("Missing Data: " + parsed.errors.toString());
-  }
+  // if(xplaneData.get("errors").length > 0){
+  //   Speed.addError("Missing Data: " + xplaneData.get("errors").toString());
+  // }
   Speed.draw();
-  Attitude.setRoll(parsed.roll);
-  Attitude.setPitch(parsed.pitch);
-  if(Attitude.setCompass)
-	  Attitude.setCompass(parsed.compass);
+  Attitude.setRoll(xplaneData.get("roll"));
+  Attitude.setPitch(xplaneData.get("pitch"));
+  // if(Attitude.setCompass)
+	//   Attitude.setCompass(xplaneData.get("compass"));
   Attitude.draw();
 }

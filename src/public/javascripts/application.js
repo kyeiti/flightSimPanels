@@ -1,24 +1,26 @@
 // place your application-wide javascripts here
 
-jQuery(document).ready( function($) {
-	socket = io.connect( document.location.protocol, '//' + document.location.hostname );
-	socket.on('connected', function (data) {
-	});
+xplaneData = new XplaneData(xplane_data);
 
-	socket.on('data:measures', function(data) {
-	  	//put the measures in a global bus and signal all widgets
+jQuery(document).ready(function ($) {
+    socket = io.connect(document.location.protocol, '//' + document.location.hostname);
+    socket.on('connected', function (data) {
+    });
 
-		f = data.split("$");
-		if(f[0] == "DREF@"){
-			if(typeof(HUD) != 'undefined')
-				injectData(HUD, f[1], config);
-			if(typeof(Radar) != 'undefined')
-				injectRadarData(Radar, f[1], config);
-			if(typeof(SMS) != 'undefined')
-				injectSMSData(SMS, f[1], config);
-			if(typeof(AOA) != 'undefined'){
-				injectGaugeData(f[1], config);
-			}
-		}
-	});
+    socket.on('data:measures', function (data) {
+        xplaneData.update(data);
+    });
 });
+
+window.setInterval(function () {
+    // Update all Widgets
+    if (typeof (HUD) != 'undefined')
+        injectData(HUD, xplaneData);
+    if (typeof (Radar) != 'undefined')
+        injectRadarData(Radar, xplaneData);
+    if (typeof (SMS) != 'undefined')
+        injectSMSData(SMS, xplaneData);
+    if (typeof (AOA) != 'undefined') {
+        injectGaugeData(xplaneData);
+    }
+}, refresh_timer);
